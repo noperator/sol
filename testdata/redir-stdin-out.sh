@@ -1,0 +1,2 @@
+wc -l \
+    <test.txt

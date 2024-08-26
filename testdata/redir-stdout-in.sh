@@ -1,0 +1,1 @@
+echo test >test.txt

@@ -1,0 +1,2 @@
+echo test ||
+    echo no

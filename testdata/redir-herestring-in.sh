@@ -1,0 +1,1 @@
+wc -l <<<'test string'

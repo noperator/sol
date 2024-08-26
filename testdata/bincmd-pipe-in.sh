@@ -1,0 +1,1 @@
+echo test | wc -l
