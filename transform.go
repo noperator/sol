@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/noperator/jqfmt"
+	// log "github.com/sirupsen/logrus"
 	"mvdan.cc/sh/v3/syntax"
 )
 
@@ -76,15 +77,67 @@ func fmtProg(src string) (string, error) {
 	return treeToStr(pp, syntax.Indent(4)), nil
 }
 
+func enforceMaxWidth(src string) (string, error) {
+	srcLines := strings.Split(src, "\n")
+	srcWide := ""
+	for sl := 0; sl < len(srcLines); sl++ {
+
+		// When we grab the next line to work, we want to make sure it's
+		// properly indented with regard to the lines we've already adjusted.
+		srcLn := srcLines[sl]
+		tmpIdt, err := normalizeIndents(fmt.Sprintf("%s\n%s", srcWide, srcLn))
+		if err != nil {
+			return "", fmt.Errorf("could not normalize indents: %w", err)
+		}
+		tmpIdtLines := strings.Split(tmpIdt, "\n")
+		wkLn := tmpIdtLines[len(tmpIdtLines)-1]
+		wkLnTrm := ""
+
+		// In this loop, we'll try to add as many fragments as possible to the
+		// current working line, as long as the total width doesn't exceed the
+		// maximum width.
+		for len(wkLn) < Cfg.MaxWidth && sl < len(srcLines)-1 {
+
+			// Trim the right side of the working line to prepare the next
+			// fragment to be appended to it.
+			wkLnTrm = strings.TrimRight(wkLn, " ")
+			wkLnTrm = strings.TrimSuffix(wkLnTrm, "\\")
+			wkLnTrm = strings.TrimRight(wkLnTrm, " ")
+
+			// Grab the next fragment that we'll attempt to add to the current
+			// working line, hoping that it doesn't exceed the maximum width.
+			frag := strings.TrimSpace(srcLines[sl+1])
+			wkLnTrmFrag := fmt.Sprintf("%s %s", wkLnTrm, frag)
+			if len(wkLnTrmFrag) <= Cfg.MaxWidth {
+				wkLn = wkLnTrmFrag
+				sl++
+			} else {
+				break
+			}
+		}
+		srcWide += fmt.Sprintf("%s\n", wkLn)
+	}
+
+	if len(srcWide) <= 1 {
+		return srcWide, nil
+	} else {
+		return srcWide[:len(srcWide)-1], nil
+	}
+}
+
 // Make sure that the final line-broken command string has sensible
 // indentation. This means that there shouldn't be a "jump" in indentation
 // where things are indented at 4 spaces, then 12 spaces (without something
 // also indented at 8 spaces).
 func normalizeIndents(src string) (string, error) {
-	lineSpaces := map[int]int{}
+	srcLines := strings.Split(src, "\n")
+	if len(srcLines) == 1 {
+		return src, nil
+	}
 
 	// Count the number of leading spaces in each line.
-	for l, line := range strings.Split(src, "\n") {
+	lineSpaces := map[int]int{}
+	for l, line := range srcLines {
 		spaceCount := 0
 		for _, char := range line {
 			if char == ' ' {

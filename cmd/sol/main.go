@@ -28,6 +28,7 @@ func main() {
 	// jqFuncsStr := flag.String("jf", "group_by,select,sort_by,map", "jq functions")
 	file := flag.String("f", "", "file")
 	verbose := flag.Bool("v", false, "verbose")
+	maxWidth := flag.Int("w", 0, "max line width before breaking")
 
 	// jqfmt stuff
 	// fn = function, op = operator, ar = array, ob = object
@@ -117,6 +118,7 @@ func main() {
 		JqFmtCfg:  jqFmtCfg,
 		OneLine:   *oneLine,
 		Env:       *env,
+		MaxWidth:  *maxWidth,
 	}
 
 	log.Debugf("cfg: %+v\n", sol.Cfg)

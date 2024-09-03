@@ -107,6 +107,10 @@ Alternatively, you can simply pipe a one-liner into standard input.
 - [ ] parallelize `exec.Command` calls in `shellenv.go`
 - [ ] log better
 - [ ] explicitly handle other shell environments besides `bash`
+- [ ] fail gracefully when command not found
+- [x] auto-break on 80-char width, etc.
+- [ ] document API usage
+- [ ] add a test for shell environment inspection
 
 ### License
 

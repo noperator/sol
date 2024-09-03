@@ -14,13 +14,13 @@ type SolCfg struct {
 	Env       bool
 	ProcSubst bool
 	Redir     bool
-	Sh        bool
 
+	MaxWidth int
+	OneLine  bool
+	Sh       bool
 	Jq       bool
 	JqFmtCfg jqfmt.JqFmtCfg
 	// JqFuncs []string
-
-	OneLine bool
 }
 
 var Cfg SolCfg
@@ -83,5 +83,13 @@ func Format(src string) (string, error) {
 		}
 	}
 
-	return srcModFmtNml, nil
+	if Cfg.MaxWidth > 0 {
+		srcModFmtNmlWid, err := enforceMaxWidth(srcModFmtNml)
+		if err != nil {
+			return "", fmt.Errorf("could not enforce max width: %v", err)
+		}
+		return srcModFmtNmlWid, nil
+	} else {
+		return srcModFmtNml, nil
+	}
 }

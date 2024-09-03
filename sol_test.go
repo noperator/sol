@@ -1,7 +1,6 @@
 package sol
 
 import (
-	// "fmt"
 	"os"
 	"reflect"
 	"strings"
@@ -146,6 +145,15 @@ func TestComplex(t *testing.T) {
 				},
 			},
 			"testdata/complex-1-out.sh",
+		},
+		{
+			"testdata/complex-2-in.sh",
+			SolCfg{
+				BinCmd:   true,
+				Args:     true,
+				MaxWidth: 30,
+			},
+			"testdata/complex-2-out.sh",
 		},
 	}
 
